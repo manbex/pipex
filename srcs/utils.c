@@ -18,8 +18,8 @@ char	*ft_strdup(char *s)
 	int	i;
 
 	str = malloc((ft_strlen(s) + 1) * sizeof(char));
-	if (str == 0)
-		return (0);
+	if (!str)
+		return (free (str), NULL);
 	i = 0;
 	while (*s)
 		str[i++] = *s++;
@@ -32,7 +32,7 @@ int	ft_strlen(char *str)
 	int	i;
 
 	i = 0;
-	while (str)
+	while (str[i])
 		i++;
 	return (i);
 }
@@ -48,4 +48,37 @@ void	ft_free_tab(char **tab)
 		i++;
 	}
 	free(tab);
+}
+
+void	ft_lstfree(t_list **lst)
+{
+	t_list	*tmp;
+
+	if (lst)
+	{
+		while (*lst)
+		{
+			tmp = (*lst)->next;
+			free((*lst)->cmd);
+			ft_free_tab((*lst)->arg);
+			free(*lst);
+			(*lst) = tmp;
+		}
+		*lst = 0;
+	}
+}
+
+void	ft_lstadd_back(t_list **lst, t_list *new)
+{
+	t_list	*list;
+
+	if (*lst)
+	{
+		list = *lst;
+		while (list->next)
+			list = list->next;
+		list->next = new;
+	}
+	else if (lst)
+		*lst = new;
 }
