@@ -35,6 +35,17 @@ static char	**parth(char **envp)
 	return (path);
 }
 
+static int	is_slash(char *str)
+{
+	while (*str)
+	{
+		if (*str == '/')
+			return (1);
+		str++;
+	}
+	return (0);
+}
+
 static char	*find_path(char *cmd, char **envp)
 {
 	char	**path;
@@ -46,7 +57,7 @@ static char	*find_path(char *cmd, char **envp)
 	if (!path)
 		return (NULL);
 	i = 0;
-	if (!access(cmd, F_OK))
+	if (is_slash(cmd) && !access(cmd, F_OK))
 			return (ft_free_tab(path), ft_strdup(cmd));
 	while (path[i])
 	{
@@ -78,6 +89,7 @@ t_list	*init_list(int argc, char **argv, char **envp, int i)
 		if (!new->arg)
 			return (ft_lstfree(&list), free(new), NULL);
 		new->cmd = find_path(new->arg[0], envp);
+		new->done = 0;
 		if (!new->cmd)
 		{
 			ft_lstfree(&list);

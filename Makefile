@@ -7,7 +7,7 @@ SRC = main.c ft_printf.c check_error.c ft_split.c ft_strjoin.c parsing.c utils.c
 OBJ = $(addprefix $(SRC_DIR), $(SRC:.c=.o))
 
 CC = gcc
-CFLAGS = -I./includes
+CFLAGS = -Wall -Wextra -Werror -I./includes
 RM = rm -f
 
 $(NAME): $(OBJ)

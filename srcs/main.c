@@ -16,61 +16,91 @@ static void	child(t_list **list, t_list *tmp, char **argv, char **envp)
 {
 	int	fdin;
 	int	fdout;
+	int	fd1;
+	int	fd2;
 
 	if (tmp == *list)
-		fdin = check_infile(list, tmp, argv, fdin);
+		fdin = check_infile(list, tmp, argv);
 	else
 		fdin = tmp->pipefd[0];
-	if (tmp->next == NULL)
-		fdout = check_outfile(list, tmp, argv, fdin, fdout);
+	if (!tmp->next)
+		fdout = check_outfile(list, tmp, argv, fdin);
 	else
 	{
 		fdout = (tmp->next)->pipefd[1];
 		close((tmp->next)->pipefd[0]);
 	}
-	dup2(fdin, 0);
-	dup2(fdout, 1);
+	cmd_error(list, tmp);
+	fd1 = dup2(fdin, 0);
+	fd2 = dup2(fdout, 1);
+	close(fdin);
+	close(fdout);
+	if (fd1 < 0 || fd2 < 0)
+		exit_error(list, tmp, -2);
 	execve(tmp->cmd, tmp->arg, envp);
+	ft_printf("%s: %s\n", tmp->arg[0], strerror(errno));
+	exit_error(list, tmp, -1);
 }
 
-/*static int	wait_for_childs(t_list **list)
+static int	open_childs(char **argv, char **envp, t_list **list, t_list *tmp)
 {
-	char	*tmp;
+	int	status;
 
-	tmp = *list;
-	while (tmp)
+	status = 0;
+	if (tmp->next)
 	{
-		waitpid(tmp->pid, 0, 0);
-		tmp = tmp->next;
+		if (pipe((tmp->next)->pipefd) < 0)
+			status = 1;
 	}
-}*/
+	if (tmp != *list)
+		close(tmp->pipefd[1]);
+	if (status == 0)
+	{
+		tmp->pid = fork();
+		if (tmp->pid < 0)
+			status = 1;
+		else if (tmp->pid == 0)
+			child(list, tmp, argv, envp);
+		else
+			tmp->done = 1;
+	}
+	if (tmp != *list)
+		close(tmp->pipefd[0]);
+	return (status);
+}
 
 static int	parent(char **argv, char **envp, t_list **list)
 {
 	t_list	*tmp;
+	int	status;
+	int	wstatus;
+	int	error;
 
 	tmp = *list;
-	while (tmp)
+	status = 0;
+	error = 0;
+	while (tmp && status == 0)
 	{
-		if (tmp->next)
-			pipe((tmp->next)->pipefd);
-		if (tmp != *list)
-			close(tmp->pipefd[1]);
-		tmp->pid = fork();
-		if (tmp->pid == 0)
-			child(list, tmp, argv, envp);
-		if (tmp != *list)
-			close(tmp->pipefd[0]);
+		status = open_childs(argv, envp, list, tmp);
 		tmp = tmp->next;
 	}
 	tmp = *list;
-	while (tmp)
+	while (tmp && tmp->done == 1)
 	{
-		waitpid(tmp->pid, 0, 0);
+		waitpid(tmp->pid, &wstatus, 0);
+		if (status || !WIFEXITED(wstatus) || (WIFEXITED(wstatus) &&
+			WEXITSTATUS(wstatus)) || WCOREDUMP(wstatus))
+		{
+			if (WIFEXITED(wstatus) && WEXITSTATUS(wstatus) != -1 && WEXITSTATUS(wstatus) != -2)
+				error++;
+			status = 1;
+		}
 		tmp = tmp->next;
 	}
+	if (error)
+		write(2, "Unexpected error\n", 17);
 	ft_lstfree(list);
-	return (0);
+	return (status);
 }
 
 int	main(int argc, char **argv, char **envp)

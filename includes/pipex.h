@@ -28,7 +28,7 @@ typedef struct	s_list
 {
 	char	*cmd;
 	char	**arg;
-	int	place;
+	int	done;
 	int	pipefd[2];
 	int	pid;
 	struct s_list	*next;
@@ -46,9 +46,9 @@ void	ft_lstadd_back(t_list **lst, t_list *new);
 int	ft_printf(char *str, ...);
 t_list	*init_list(int argc, char **argv, char **envp, int i);
 void	close_pipes(t_list **list, t_list *limit);
-int	check_infile(t_list **list, t_list *tmp, char **argv, int fdin);
-int	check_outfile(t_list **list, t_list *tmp, char **argv, int fdin, int fdout);
+int	check_infile(t_list **list, t_list *tmp, char **argv);
+int	check_outfile(t_list **list, t_list *tmp, char **argv, int fdin);
 void	exit_error(t_list **list, t_list *tmp, int error);
-void	cmd_error(t_list **list, t_list *tmp, int fdin, int fdout);
+void	cmd_error(t_list **list, t_list *tmp);
 
 #endif
