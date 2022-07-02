@@ -36,10 +36,10 @@ static void	child(t_list **list, t_list *tmp, char **argv, char **envp)
 	close(fdin);
 	close(fdout);
 	if (fd1 < 0 || fd2 < 0)
-		exit_error(list, tmp, -2);
+		exit_error(list, tmp, 2);
 	execve(tmp->cmd, tmp->arg, envp);
 	ft_printf("%s: %s\n", tmp->arg[0], strerror(errno));
-	exit_error(list, tmp, -1);
+	exit_error(list, tmp, 1);
 }
 
 static int	open_childs(char **argv, char **envp, t_list **list, t_list *tmp)
@@ -91,7 +91,8 @@ static int	parent(char **argv, char **envp, t_list **list)
 		if (status || !WIFEXITED(wstatus) || (WIFEXITED(wstatus) &&
 			WEXITSTATUS(wstatus)) || WCOREDUMP(wstatus))
 		{
-			if (WIFEXITED(wstatus) && WEXITSTATUS(wstatus) != -1 && WEXITSTATUS(wstatus) != -2)
+			if (WIFEXITED(wstatus) && WEXITSTATUS(wstatus) != 1 &&
+				WEXITSTATUS(wstatus) != 2)
 				error++;
 			status = 1;
 		}

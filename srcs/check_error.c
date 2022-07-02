@@ -8,13 +8,13 @@ int	check_infile(t_list **list, t_list *tmp, char **argv)
 	{
 		ft_printf("pipex: %s: %s\n", argv[1], strerror(errno));
 		close(fdin);
-		exit_error(list, tmp, -1);
+		exit_error(list, tmp, 1);
 	}
 	else if (fdin < 0)
 	{
 		close(fdin);
 		ft_lstfree(list);
-		exit_error(list, tmp, -2);
+		exit_error(list, tmp, 2);
 	}
 	return (fdin);
 }
@@ -33,13 +33,13 @@ int	check_outfile(t_list **list, t_list *tmp, char **argv, int fdin)
 		ft_printf("pipex: %s: %s\n", argv[i], strerror(errno));
 		close(fdin);
 		close(fdout);
-		exit_error(list, tmp, -1);
+		exit_error(list, tmp, 1);
 	}
 	else if (fdout < 0)
 	{
 		close(fdin);
 		close(fdout);
-		exit_error(list, tmp, -2);
+		exit_error(list, tmp, 2);
 	}
 	return (fdout);
 }
@@ -63,12 +63,12 @@ void	cmd_error(t_list **list, t_list *tmp)
 	{
 		ft_printf("%s\n", tmp->cmd);
 		ft_printf("%s: command not found\n", tmp->arg[0]);
-		exit_error(list, tmp, -1);
+		exit_error(list, tmp, 1);
 	}
 	if (access(tmp->cmd, X_OK))
 	{
 		ft_printf("%s\n", tmp->cmd);
 		ft_printf("pipex: %s: Permission denied\n", tmp->cmd);
-		exit_error(list, tmp, -1);
+		exit_error(list, tmp, 1);
 	}
 }
