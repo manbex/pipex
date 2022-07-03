@@ -16,7 +16,7 @@ static char	**parth(char **envp)
 {
 	char	**path;
 	char	*tmp;
-	int	i;
+	int		i;
 
 	i = 0;
 	while (envp[i] && (envp[i][0] != 'P' || envp[i][1] != 'A' ||
@@ -46,32 +46,32 @@ static int	is_slash(char *str)
 	return (0);
 }
 
-static char	*find_path(char *cmd, char **envp)
+static int	find_path(char *cmd, char **envp, char **res)
 {
 	char	**path;
 	char	*tmp;
 	char	*str;
-	int	i;
+	int		i;
 
 	path = parth(envp);
 	if (!path)
-		return (NULL);
+		return (0);
 	i = 0;
 	if (is_slash(cmd) && !access(cmd, F_OK))
-			return (ft_free_tab(path), ft_strdup(cmd));
+		return (ft_free_tab(path), *res = ft_strdup(cmd), 1);
 	while (path[i])
 	{
 		tmp = ft_strjoin(path[i], "/");
-		str = ft_strjoin(tmp,  cmd);
+		str = ft_strjoin(tmp, cmd);
 		free(tmp);
 		if (!str)
-			return (ft_free_tab(path), NULL);
+			return (ft_free_tab(path), 0);
 		if (!access(str, F_OK))
-			return (ft_free_tab(path), str);
+			return (ft_free_tab(path), *res = str, 1);
 		free(str);
 		i++;
 	}
-	return (ft_free_tab(path), ft_strdup(cmd));
+	return (ft_free_tab(path), *res = ft_strdup(cmd), 1);
 }
 
 t_list	*init_list(int argc, char **argv, char **envp, int i)
@@ -88,13 +88,13 @@ t_list	*init_list(int argc, char **argv, char **envp, int i)
 		new->arg = ft_split(argv[i], ' ');
 		if (!new->arg)
 			return (ft_lstfree(&list), free(new), NULL);
-		new->cmd = find_path(new->arg[0], envp);
-		new->done = 0;
-		if (!new->cmd)
+		new->cmd = NULL;
+		if (!find_path(new->arg[0], envp, &(new->cmd)))
 		{
 			ft_lstfree(&list);
 			return (ft_free_tab(new->arg), free(new), NULL);
 		}
+		new->done = 0;
 		new->next = NULL;
 		ft_lstadd_back(&list, new);
 		i++;

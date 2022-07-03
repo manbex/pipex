@@ -16,8 +16,7 @@ static void	child(t_list **list, t_list *tmp, char **argv, char **envp)
 {
 	int	fdin;
 	int	fdout;
-	int	fd1;
-	int	fd2;
+	int	fd[2];
 
 	if (tmp == *list)
 		fdin = check_infile(list, tmp, argv);
@@ -31,11 +30,11 @@ static void	child(t_list **list, t_list *tmp, char **argv, char **envp)
 		close((tmp->next)->pipefd[0]);
 	}
 	cmd_error(list, tmp);
-	fd1 = dup2(fdin, 0);
-	fd2 = dup2(fdout, 1);
+	fd[0] = dup2(fdin, 0);
+	fd[1] = dup2(fdout, 1);
 	close(fdin);
 	close(fdout);
-	if (fd1 < 0 || fd2 < 0)
+	if (fd[0] < 0 || fd[1] < 0)
 		exit_error(list, tmp, 2);
 	execve(tmp->cmd, tmp->arg, envp);
 	ft_printf("%s: %s\n", tmp->arg[0], strerror(errno));
@@ -69,48 +68,59 @@ static int	open_childs(char **argv, char **envp, t_list **list, t_list *tmp)
 	return (status);
 }
 
-static int	parent(char **argv, char **envp, t_list **list)
+static int	wait_for_childs(t_list **list, int status)
 {
 	t_list	*tmp;
-	int	status;
-	int	wstatus;
-	int	error;
+	int		error;
+	int		exit_code;
+	int		wstatus;
 
 	tmp = *list;
-	status = 0;
 	error = 0;
-	while (tmp && status == 0)
-	{
-		status = open_childs(argv, envp, list, tmp);
-		tmp = tmp->next;
-	}
-	tmp = *list;
+	exit_code = 0;
 	while (tmp && tmp->done == 1)
 	{
 		waitpid(tmp->pid, &wstatus, 0);
-		if (status || !WIFEXITED(wstatus) || (WIFEXITED(wstatus) &&
-			WEXITSTATUS(wstatus)) || WCOREDUMP(wstatus))
+		if (status || !WIFEXITED(wstatus) || (WIFEXITED(wstatus)
+				&& WEXITSTATUS(wstatus)) || WCOREDUMP(wstatus))
 		{
-			if (WIFEXITED(wstatus) && WEXITSTATUS(wstatus) != 1 &&
-				WEXITSTATUS(wstatus) != 2)
+			if (!(WIFEXITED(wstatus) && WEXITSTATUS(wstatus) == 1)
+				&& !(!WIFEXITED(wstatus) && WTERMSIG(wstatus) == 13))
 				error++;
-			status = 1;
+			exit_code = 1;
 		}
 		tmp = tmp->next;
 	}
 	if (error)
 		write(2, "Unexpected error\n", 17);
+	return (exit_code);
+}
+
+static int	parent(char **argv, char **envp, t_list **list)
+{
+	t_list	*tmp;
+	int		status;
+	int		exit_code;
+
+	tmp = *list;
+	status = 0;
+	while (tmp && status == 0)
+	{
+		status = open_childs(argv, envp, list, tmp);
+		tmp = tmp->next;
+	}
+	exit_code = wait_for_childs(list, status);
 	ft_lstfree(list);
-	return (status);
+	return (exit_code);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
 	t_list	*list;
 
-	if (argc < 5)
+	if (argc != 5)
 	{
-		write(2, "Usage: file1 cmd1 cmd2 ... cmdN file2\n", 38);
+		write(2, "Usage: file1 cmd1 cmd2 file2\n", 29);
 		return (EXIT_FAILURE);
 	}
 	else
