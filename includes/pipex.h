@@ -22,8 +22,6 @@
 # include <errno.h>
 # include <stdarg.h>
 
-# include <stdio.h>
-
 typedef struct	s_list
 {
 	char	*cmd;

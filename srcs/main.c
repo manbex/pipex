@@ -118,16 +118,25 @@ int	main(int argc, char **argv, char **envp)
 {
 	t_list	*list;
 
-	if (argc != 5)
+	if (!ft_strcmp(argv[1], "here_doc"))
 	{
-		write(2, "Usage: file1 cmd1 cmd2 file2\n", 29);
-		return (EXIT_FAILURE);
-	}
-	else
-	{
-		list = init_list(argc, argv, envp, 2);
+		if (argc < 6)
+		{
+			write(2, "Usage: here_doc LIMITER cmd1 cmd2 cmd3 ... cmdn file2\n", 54);
+			return (EXIT_FAILURE);
+		}
+		list = init_list(argc, argv, envp, 3);
 		if (!list)
 			return (write(2, "Unexpected error\n", 17), EXIT_FAILURE);
 		return (parent(argv, envp, &list));
 	}
+	if (argc < 5)
+	{
+		write(2, "Usage: file1 cmd1 cmd2 cmd3 ... cmdn file2\n", 43);
+		return (EXIT_FAILURE);
+	}
+	list = init_list(argc, argv, envp, 2);
+	if (!list)
+		return (write(2, "Unexpected error\n", 17), EXIT_FAILURE);
+	return (parent(argv, envp, &list));
 }
