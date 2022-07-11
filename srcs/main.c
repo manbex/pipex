@@ -100,18 +100,27 @@ static int	parent(char **argv, char **envp, t_list **list)
 {
 	t_list	*tmp;
 	int		status;
-	int		exit_code;
 
 	tmp = *list;
 	status = 0;
+	if (!ft_strcmp(argv[1], "here_doc") && here_doc(argv))
+	{
+		write(2, "Unexpected error\n", 17);
+		return (1);
+	}
 	while (tmp && status == 0)
 	{
 		status = open_childs(argv, envp, list, tmp);
 		tmp = tmp->next;
 	}
-	exit_code = wait_for_childs(list, status);
+	status = wait_for_childs(list, status);
 	ft_lstfree(list);
-	return (exit_code);
+	if (!ft_strcmp(argv[1], "here_doc") && unlink(".here_doc.tmp"))
+	{
+		write(2, "Unexpected error\n", 17);
+		return (1);
+	}
+	return (status);
 }
 
 int	main(int argc, char **argv, char **envp)

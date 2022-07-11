@@ -12,6 +12,7 @@
 
 #ifndef PIPEX_H
 # define PIPEX_H
+# define BUFFER_SIZE 1000
 
 # include <sys/types.h>
 # include <sys/wait.h>
@@ -48,5 +49,12 @@ int		check_infile(t_list **list, t_list *tmp, char **argv);
 int		check_outfile(t_list **list, t_list *tmp, char **argv, int fdin);
 void	exit_error(t_list **list, t_list *tmp, int error);
 void	cmd_error(t_list **list, t_list *tmp);
+char	*get_next_line(int fd);
+char	*get_stash(char **stash, char *str);
+char	*get_line(char *stash);
+int		ft_have_newline(char *str);
+char	*ft_strjoin_spe(char *s1, char *s2);
+char	*ft_free(char *str);
+int	here_doc(char **argv);
 
 #endif

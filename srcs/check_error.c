@@ -4,7 +4,10 @@ int	check_infile(t_list **list, t_list *tmp, char **argv)
 {
 	int	fdin;
 
-	fdin = open(argv[1], O_RDONLY | O_CLOEXEC);
+	if (!ft_strcmp(argv[1], "here_doc"))
+		fdin = open(".here_doc.tmp", O_RDONLY | O_CLOEXEC);
+	else
+		fdin = open(argv[1], O_RDONLY | O_CLOEXEC);
 	if (fdin < 0 && (errno == 2 || errno == 13))
 	{
 		ft_printf("pipex: %s: %s\n", argv[1], strerror(errno));
@@ -28,7 +31,10 @@ int	check_outfile(t_list **list, t_list *tmp, char **argv, int fdin)
 	i = 0;
 	while (argv[i + 1])
 		i++;
-	fdout = open(argv[i], O_CREAT | O_WRONLY | O_TRUNC | O_CLOEXEC, 00664);
+	if (!ft_strcmp(argv[1], "here_doc"))
+		fdout = open(argv[i], O_CREAT | O_WRONLY | O_APPEND | O_CLOEXEC, 00664);
+	else
+		fdout = open(argv[i], O_CREAT | O_WRONLY | O_TRUNC | O_CLOEXEC, 00664);
 	if (fdout < 0 && (errno == 2 || errno == 13))
 	{
 		ft_printf("pipex: %s: %s\n", argv[i], strerror(errno));

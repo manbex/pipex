@@ -2,7 +2,7 @@ NAME = pipex
 
 SRC_DIR=srcs/
 
-SRC = main.c ft_printf.c check_error.c ft_split.c ft_strjoin.c parsing.c utils.c utils2.c
+SRC = main.c ft_printf.c check_error.c ft_split.c ft_strjoin.c parsing.c utils.c utils2.c get_next_line.c get_next_line_utils.c
 
 OBJ = $(addprefix $(SRC_DIR), $(SRC:.c=.o))
 
