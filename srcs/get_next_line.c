@@ -82,7 +82,6 @@ char	*get_stash(char **stash, char *str)
 	return (free(*stash), *stash = new, str);
 }
 
-
 char	*get_next_line(int fd)
 {
 	char		*buf;

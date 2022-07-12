@@ -23,16 +23,15 @@
 # include <errno.h>
 # include <stdarg.h>
 
-typedef struct	s_list
+typedef struct s_list
 {
-	char	*cmd;
-	char	**arg;
-	int	done;
-	int	pipefd[2];
-	int	pid;
+	char			*cmd;
+	char			**arg;
+	int				done;
+	int				pipefd[2];
+	int				pid;
 	struct s_list	*next;
-	
-} t_list;
+}	t_list;
 
 void	ft_free_tab(char **tab);
 int		ft_strlen(char *str);
@@ -55,6 +54,6 @@ char	*get_line(char *stash);
 int		ft_have_newline(char *str);
 char	*ft_strjoin_spe(char *s1, char *s2);
 char	*ft_free(char *str);
-int	here_doc(char **argv);
+int		here_doc(char **argv);
 
 #endif

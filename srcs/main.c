@@ -131,7 +131,7 @@ int	main(int argc, char **argv, char **envp)
 	{
 		if (argc < 6)
 		{
-			write(2, "Usage: here_doc LIMITER cmd1 cmd2 cmd3 ... cmdn file2\n", 54);
+			write(2, "Usage: here_doc LIMITER cmd1 cmd2 ... cmdn file2\n", 54);
 			return (EXIT_FAILURE);
 		}
 		list = init_list(argc, argv, envp, 3);
