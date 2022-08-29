@@ -22,7 +22,7 @@ int	check_infile(t_list **list, t_list *tmp, char **argv)
 		fdin = open(argv[1], O_RDONLY | O_CLOEXEC);
 	if (fdin < 0 && (errno == 2 || errno == 13))
 	{
-		ft_printf("pipex: %s: %s\n", argv[1], strerror(errno));
+		ft_printf("pipex: %s: %s\n", strerror(errno), argv[1]);
 		close(fdin);
 		exit_error(list, tmp, 1);
 	}
@@ -30,7 +30,7 @@ int	check_infile(t_list **list, t_list *tmp, char **argv)
 	{
 		close(fdin);
 		ft_lstfree(list);
-		exit_error(list, tmp, 2);
+		exit_error(list, tmp, -1);
 	}
 	return (fdin);
 }
@@ -49,7 +49,7 @@ int	check_outfile(t_list **list, t_list *tmp, char **argv, int fdin)
 		fdout = open(argv[i], O_CREAT | O_WRONLY | O_TRUNC | O_CLOEXEC, 00664);
 	if (fdout < 0 && (errno == 2 || errno == 13))
 	{
-		ft_printf("pipex: %s: %s\n", argv[i], strerror(errno));
+		ft_printf("pipex: %s: %s\n", strerror(errno), argv[i]);
 		close(fdin);
 		close(fdout);
 		exit_error(list, tmp, 1);
@@ -58,7 +58,7 @@ int	check_outfile(t_list **list, t_list *tmp, char **argv, int fdin)
 	{
 		close(fdin);
 		close(fdout);
-		exit_error(list, tmp, 2);
+		exit_error(list, tmp, -1);
 	}
 	return (fdout);
 }
@@ -80,8 +80,7 @@ void	cmd_error(t_list **list, t_list *tmp)
 {
 	if (tmp->cmd && access(tmp->cmd, F_OK))
 	{
-		ft_printf("%s\n", tmp->cmd);
-		ft_printf("%s: command not found\n", tmp->arg[0]);
+		ft_printf("pipex: command not found: %s\n", tmp->cmd);
 		exit_error(list, tmp, 1);
 	}
 }

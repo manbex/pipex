@@ -40,16 +40,15 @@ int	here_doc(char **argv)
 	fd = open(".here_doc.tmp", O_CREAT | O_WRONLY | O_TRUNC, 00644);
 	if (fd < 1)
 		return (1);
-	write (1, "> ", 2);
+	write (1, "heredoc> ", 9);
 	str = get_next_line(0);
 	while (str)
 	{
 		if (!ft_strncmp(str, argv[2], ft_strlen(str) - 1))
 			break ;
-		else
-			write(fd, str, ft_strlen(str));
+		write(fd, str, ft_strlen(str));
 		free(str);
-		write (1, "> ", 2);
+		write (1, "heredoc> ", 9);
 		str = get_next_line(0);
 	}
 	free(str);
